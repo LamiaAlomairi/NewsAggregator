@@ -1,5 +1,7 @@
 package org.example;
 
+import java.io.*;
+import java.net.*;
 import java.sql.*;
 import java.util.*;
 public class Main {
@@ -12,36 +14,23 @@ public class Main {
         String input = scan.next();
         String API = "https://api.nytimes.com/svc/search/v2/articlesearch.json?q="+input+"&api-key=RZkIxwoG3465EERdmzJ2lsUmFBYtV3lN";
 
-        int pageNumber = 0;
-        List<String> articles = new ArrayList<>();
-        ObjectMapper mapper = new ObjectMapper();
-
-        while (true) {
+        try {
             URL url = new URL(API);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
             InputStream responseStream = connection.getInputStream();
-            JsonNode jsonNode = mapper.readTree(responseStream);
-            JsonNode articlesNode = jsonNode.get("response").get("docs");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(responseStream));
+            String line;
 
-            for (JsonNode articleNode : articlesNode) {
-                Article article = new Article();
-                article.setTitle(articleNode.get("headline").get("main").asText());
-                article.setAbstractText(articleNode.get("abstract").asText());
-                article.setUrl(articleNode.get("web_url").asText());
-                article.setPublishedDate(articleNode.get("pub_date").asText());
-                articles.add(article);
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
             }
 
-            int totalPages = jsonNode.get("response").get("meta").get("hits").asInt() / 10;
-            if (pageNumber >= totalPages) {
-                break;
-            }
-            pageNumber++;
+            reader.close();
+        } catch (Exception ex) {
+            System.err.println(ex);
         }
-
-        System.out.println("Total articles retrieved: " + articles.size());
 
     }
 

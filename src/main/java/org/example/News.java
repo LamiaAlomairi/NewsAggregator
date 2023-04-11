@@ -43,3 +43,5 @@ public class News {
         return content;
     }
 }
+
+
