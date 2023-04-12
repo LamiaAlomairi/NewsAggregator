@@ -1,7 +1,9 @@
 package org.example;
 
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
+
+
+import com.github.jsonparser.JsonParser;
+import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.*;
@@ -9,49 +11,15 @@ import java.sql.*;
 import java.util.*;
 public class Main {
     static Scanner scan = new Scanner(System.in);
+    static String print_headline;
+    static String content;
     public static void main(String[] args) {
-
         createTable();
 
-        String apiKey = "RZkIxwoG3465EERdmzJ2lsUmFBYtV3lN";
-        String query = "art";
-        String apiUrl = "https://api.nytimes.com/svc/search/v2/articlesearch.json?q=" + query + "&api-key=" + apiKey;
+        System.out.println("Enter News You want to search ");
+        String input = scan.next();
+        String API = "https://api.nytimes.com/svc/search/v2/articlesearch.json?q="+input+"&api-key=RZkIxwoG3465EERdmzJ2lsUmFBYtV3lN";
 
-        try {
-            URL url = new URL(apiUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String response = in.readLine();
-            
-            JSONObject jsonResponse = new JSONObject(response);
-            JSONArray docsArray = jsonResponse.getJSONObject("response").getJSONArray("docs");
-
-            for (int i = 0; i < docsArray.size(); i++) {
-                JSONObject docObject = docsArray.getJSONObject(i);
-                String title = docObject.getJSONObject("headline").getStr("main");
-                String author = docObject.getJSONArray("byline").getJSONObject(0).getStr("original");
-                String date = docObject.getStr("pub_date").substring(0, 10);
-                String category = docObject.getJSONArray("section_name").getStr(0);
-                String content = docObject.getStr("abstract");
-
-                System.out.println("Title: " + title);
-                System.out.println("Author: " + author);
-                System.out.println("Date: " + date);
-                System.out.println("Category: " + category);
-                System.out.println("Content: " + content);
-                System.out.println();
-            }
-
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-//        System.out.println("Enter News You want to search ");
-//        String input = scan.next();
-//        String API = "https://api.nytimes.com/svc/search/v2/articlesearch.json?q="+input+"&api-key=RZkIxwoG3465EERdmzJ2lsUmFBYtV3lN";
-//
 //        try {
 //            URL url = new URL(API);
 //            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -65,10 +33,40 @@ public class Main {
 //                System.out.println(line);
 //            }
 //
+//
 //            reader.close();
 //        } catch (Exception ex) {
 //            System.err.println(ex);
 //        }
+
+        try {
+            URL url = new URL(API);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+
+            if (conn.getResponseCode() != 200) {
+                throw new RuntimeException("HTTP error code : " + conn.getResponseCode());
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+            String output;
+            StringBuilder json = new StringBuilder();
+
+            while ((output = br.readLine()) != null) {
+                json.append(output);
+            }
+
+            conn.disconnect();
+
+            Gson gson = new Gson();
+            News myObj = gson.fromJson(json.toString(), News.class);
+
+            // Use myObj for further processing
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
