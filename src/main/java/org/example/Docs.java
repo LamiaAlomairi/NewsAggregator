@@ -33,12 +33,12 @@ public class Docs {
 
 
 
-        String subsection_name;   // section_name
-        public void set_category(String subsection_name) {
-            this.subsection_name = subsection_name;
+        String section_name;   // section_name
+        public void set_category(String section_name) {
+            this.section_name = section_name;
         }
         public String get_category() {
-            return subsection_name;
+            return section_name;
         }
 
 
